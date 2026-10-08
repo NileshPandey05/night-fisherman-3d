@@ -1,0 +1,6 @@
+export { ShorelineSimulation } from './ShorelineSimulation'
+export { ShorelineTerrain } from './ShorelineTerrain'
+export { ShorelineWater } from './ShorelineWater'
+export { SprayParticles } from './SprayParticles'
+export { SandMaterial } from './materials/SandMaterial'
+export { WaterMaterial } from './materials/WaterMaterial'
