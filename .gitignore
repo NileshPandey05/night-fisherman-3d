@@ -26,3 +26,8 @@ dist-ssr
 # Spec files
 *-spec.md
 
+# Media & recordings
+*.mp4
+*.webm
+*.mov
+
