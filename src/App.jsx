@@ -9,7 +9,7 @@ import { NightFishermanScene, NightFishermanHUD } from './components/NightFisher
 
 export default function App() {
   const [isLab, setIsLab] = useState(window.location.hash.startsWith('#/lab/'))
-  const [sceneMode, setSceneMode] = useState('aquarium')
+  const [sceneMode, setSceneMode] = useState('night_fisherman')
   const [fishermanMotionMode, setFishermanMotionMode] = useState('milling')
   const [millingDirection, setMillingDirection] = useState(1)
   const [bloomEnabled, setBloomEnabled] = useState(true)
@@ -25,15 +25,21 @@ export default function App() {
     const handleHash = () => {
       const hash = window.location.hash
       setIsLab(hash.startsWith('#/lab/'))
-      if (hash === '#/fisherman') {
+      if (hash === '#/shoreline') {
+        setSceneMode('shoreline')
+      } else if (hash === '#/aquarium') {
+        setSceneMode('aquarium')
+      } else if (hash === '#/pool') {
+        setSceneMode('pool')
+      } else if (hash === '#/fisherman' || hash === '#/' || !hash) {
         setSceneMode('night_fisherman')
       }
     }
     window.addEventListener('hashchange', handleHash)
     handleHash()
-    // If empty hash, default to the requested lab level 3
-    if (!window.location.hash) {
-      window.location.hash = '#/lab/caustics?level=3'
+    // If empty hash or root, default to Night Fisherman
+    if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#/') {
+      window.location.hash = '#/fisherman'
     }
     return () => window.removeEventListener('hashchange', handleHash)
   }, [])
@@ -102,7 +108,8 @@ export default function App() {
         <button
           type="button"
           onClick={() => {
-            window.location.hash = '#/lab/caustics?level=3'
+            window.location.hash = '#/fisherman'
+            setSceneMode('night_fisherman')
           }}
           style={{
             padding: '6px 12px',
@@ -110,32 +117,19 @@ export default function App() {
             fontWeight: 600,
             borderRadius: 6,
             border: 'none',
-            background: '#8fd3ff',
-            color: '#002b2b',
+            background: sceneMode === 'night_fisherman' ? '#ffa63b' : 'transparent',
+            color: sceneMode === 'night_fisherman' ? '#1e140a' : '#94a3b8',
             cursor: 'pointer'
           }}
         >
-          🔬 Go to The Lab
+          🏮 Night Fisherman
         </button>
         <button
           type="button"
-          onClick={() => setSceneMode('aquarium')}
-          style={{
-            padding: '6px 12px',
-            fontSize: 12,
-            fontWeight: 600,
-            borderRadius: 6,
-            border: 'none',
-            background: sceneMode === 'aquarium' ? '#19A9A0' : 'transparent',
-            color: sceneMode === 'aquarium' ? '#002b2b' : '#94a3b8',
-            cursor: 'pointer'
+          onClick={() => {
+            window.location.hash = '#/shoreline'
+            setSceneMode('shoreline')
           }}
-        >
-          🐠 Aquarium Lab
-        </button>
-        <button
-          type="button"
-          onClick={() => setSceneMode('shoreline')}
           style={{
             padding: '6px 12px',
             fontSize: 12,
@@ -151,7 +145,29 @@ export default function App() {
         </button>
         <button
           type="button"
-          onClick={() => setSceneMode('pool')}
+          onClick={() => {
+            window.location.hash = '#/aquarium'
+            setSceneMode('aquarium')
+          }}
+          style={{
+            padding: '6px 12px',
+            fontSize: 12,
+            fontWeight: 600,
+            borderRadius: 6,
+            border: 'none',
+            background: sceneMode === 'aquarium' ? '#19A9A0' : 'transparent',
+            color: sceneMode === 'aquarium' ? '#002b2b' : '#94a3b8',
+            cursor: 'pointer'
+          }}
+        >
+          🐠 Aquarium Lab
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            window.location.hash = '#/pool'
+            setSceneMode('pool')
+          }}
           style={{
             padding: '6px 12px',
             fontSize: 12,
@@ -168,8 +184,7 @@ export default function App() {
         <button
           type="button"
           onClick={() => {
-            window.location.hash = '#/fisherman'
-            setSceneMode('night_fisherman')
+            window.location.hash = '#/lab/caustics?level=3'
           }}
           style={{
             padding: '6px 12px',
@@ -177,12 +192,12 @@ export default function App() {
             fontWeight: 600,
             borderRadius: 6,
             border: 'none',
-            background: sceneMode === 'night_fisherman' ? '#ffa63b' : 'transparent',
-            color: sceneMode === 'night_fisherman' ? '#1e140a' : '#94a3b8',
+            background: '#8fd3ff',
+            color: '#002b2b',
             cursor: 'pointer'
           }}
         >
-          🏮 Night Fisherman
+          🔬 Go to The Lab
         </button>
       </div>
 

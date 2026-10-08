@@ -21,7 +21,6 @@ export function LabView() {
     const handleHash = () => {
       let hash = window.location.hash
       if (!hash.startsWith('#/lab/')) {
-        window.location.hash = '#/lab/caustics?level=3'
         return
       }
 
@@ -274,11 +273,11 @@ export function LabView() {
           Drag to explore · Scroll to move closer
         </div>
 
-        <a href="#/" className="lab-back">
-          ← Back to the Aquarium
+        <a href="#/fisherman" className="lab-back" style={{ fontWeight: 600, background: 'rgba(255, 166, 59, 0.2)', borderColor: 'rgba(255, 166, 59, 0.5)', color: '#ffb950' }}>
+          ← 🏮 Night Fisherman
         </a>
-        <a href="#/fisherman" className="lab-back" style={{ left: 210, background: 'rgba(255, 166, 59, 0.15)', borderColor: 'rgba(255, 166, 59, 0.4)', color: '#ffb950' }}>
-          🏮 Night Fisherman
+        <a href="#/aquarium" className="lab-back" style={{ left: 215 }}>
+          🐠 Aquarium Lab
         </a>
       </div>
     </main>
