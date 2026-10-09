@@ -6,6 +6,7 @@ import { PoolScene } from './components/PoolScene'
 import { UIControls } from './components/UIControls'
 import { LabView } from './components/Lab/LabView'
 import { NightFishermanScene, NightFishermanHUD } from './components/NightFisherman'
+import { BlackHoleScene, BlackHoleHUD } from './components/BlackHole'
 
 export default function App() {
   const [isLab, setIsLab] = useState(window.location.hash.startsWith('#/lab/'))
@@ -16,6 +17,17 @@ export default function App() {
   const [causticsEnabled, setCausticsEnabled] = useState(true)
   const [isPredatorAttacking, setIsPredatorAttacking] = useState(false)
 
+  // Black Hole Simulation State
+  const [bhMass, setBhMass] = useState(1.0)
+  const [bhParticleCount, setBhParticleCount] = useState(50000)
+  const [bhDriftSpeed, setBhDriftSpeed] = useState(0.85)
+  const [bhDopplerStrength, setBhDopplerStrength] = useState(1.0)
+  const [bhLensingStrength, setBhLensingStrength] = useState(1.0)
+  const [bhPhotonRingEnabled, setBhPhotonRingEnabled] = useState(true)
+  const [bhJetsEnabled, setBhJetsEnabled] = useState(true)
+  const [bhBloomEnabled, setBhBloomEnabled] = useState(true)
+  const [bhCameraPreset, setBhCameraPreset] = useState('cinematic')
+
   const handleTriggerAttack = () => {
     setIsPredatorAttacking(true)
     setTimeout(() => setIsPredatorAttacking(false), 4500)
@@ -25,7 +37,9 @@ export default function App() {
     const handleHash = () => {
       const hash = window.location.hash
       setIsLab(hash.startsWith('#/lab/'))
-      if (hash === '#/shoreline') {
+      if (hash === '#/blackhole') {
+        setSceneMode('blackhole')
+      } else if (hash === '#/shoreline') {
         setSceneMode('shoreline')
       } else if (hash === '#/aquarium') {
         setSceneMode('aquarium')
@@ -105,6 +119,25 @@ export default function App() {
         border: '1px solid rgba(255,255,255,0.15)',
         gap: 4
       }}>
+        <button
+          type="button"
+          onClick={() => {
+            window.location.hash = '#/blackhole'
+            setSceneMode('blackhole')
+          }}
+          style={{
+            padding: '6px 12px',
+            fontSize: 12,
+            fontWeight: 600,
+            borderRadius: 6,
+            border: 'none',
+            background: sceneMode === 'blackhole' ? '#ffb950' : 'transparent',
+            color: sceneMode === 'blackhole' ? '#0f172a' : '#94a3b8',
+            cursor: 'pointer'
+          }}
+        >
+          🕳️ Black Hole
+        </button>
         <button
           type="button"
           onClick={() => {
@@ -219,9 +252,43 @@ export default function App() {
             isAttacking={isPredatorAttacking}
           />
         )}
+        {sceneMode === 'blackhole' && (
+          <BlackHoleScene
+            mass={bhMass}
+            particleCount={bhParticleCount}
+            driftSpeed={bhDriftSpeed}
+            dopplerStrength={bhDopplerStrength}
+            lensingStrength={bhLensingStrength}
+            photonRingEnabled={bhPhotonRingEnabled}
+            jetsEnabled={bhJetsEnabled}
+            bloomEnabled={bhBloomEnabled}
+            cameraPreset={bhCameraPreset}
+          />
+        )}
       </Canvas>
 
-      {sceneMode === 'night_fisherman' ? (
+      {sceneMode === 'blackhole' ? (
+        <BlackHoleHUD
+          mass={bhMass}
+          setMass={setBhMass}
+          particleCount={bhParticleCount}
+          setParticleCount={setBhParticleCount}
+          driftSpeed={bhDriftSpeed}
+          setDriftSpeed={setBhDriftSpeed}
+          dopplerStrength={bhDopplerStrength}
+          setDopplerStrength={setBhDopplerStrength}
+          lensingStrength={bhLensingStrength}
+          setLensingStrength={setBhLensingStrength}
+          photonRingEnabled={bhPhotonRingEnabled}
+          setPhotonRingEnabled={setBhPhotonRingEnabled}
+          jetsEnabled={bhJetsEnabled}
+          setJetsEnabled={setBhJetsEnabled}
+          bloomEnabled={bhBloomEnabled}
+          setBloomEnabled={setBhBloomEnabled}
+          cameraPreset={bhCameraPreset}
+          setCameraPreset={setBhCameraPreset}
+        />
+      ) : sceneMode === 'night_fisherman' ? (
         <NightFishermanHUD
           motionMode={fishermanMotionMode}
           millingDirection={millingDirection}

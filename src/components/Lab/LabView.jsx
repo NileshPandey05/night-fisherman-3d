@@ -279,6 +279,9 @@ export function LabView() {
         <a href="#/aquarium" className="lab-back" style={{ left: 215 }}>
           🐠 Aquarium Lab
         </a>
+        <a href="#/blackhole" className="lab-back" style={{ left: 360, background: 'rgba(255, 185, 80, 0.15)', borderColor: 'rgba(255, 185, 80, 0.4)', color: '#ffb950' }}>
+          🕳️ Black Hole
+        </a>
       </div>
     </main>
   )
