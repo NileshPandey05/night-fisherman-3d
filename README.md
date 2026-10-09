@@ -33,6 +33,16 @@ Inspired by Wawa Sensei's *"You can't prompt what you can't name"* series and ph
   - Wave-coupled advection surging forward with the ocean swell and bunching up on wave crests.
   - Multi-surface illumination: water surface, fish scale light ribbons, and subterranean sand dunes.
 
+- **🕳️ GPU-Accelerated Black Hole Simulation**:
+  - Central absorbing Schwarzschild event horizon ($R_s = 2GM/c^2$) and shadow radius ($b_{\\text{crit}} \\approx 2.6 R_s$).
+  - Up to 100,000 GPU tracer particles with relativistic Keplerian angular velocity ($\\Omega \\propto r^{-3/2}$).
+  - Viscous inward radial migration and relativistic plunge acceleration inside the ISCO ($r < 3 R_s$).
+  - Shakura-Sunyaev / Novikov-Thorne blackbody temperature gradient (cyan-hot inner edge to crimson-cool outer boundary).
+  - Relativistic Doppler beaming asymmetry (beamed/blueshifted approaching side, dimmed/redshifted receding side).
+  - Razor-sharp exponential photon ring and gravitational lensing starfield distortion backdrop.
+  - Collimated polar relativistic plasma jets with helical expansion.
+  - Interactive HUD with camera presets (Cinematic, Edge-on, Top Polar, Horizon Close-up) and particle count selectors (10k to 100k).
+
 - **⚡ Performance & Optimization**:
   - Clamped Device Pixel Ratio (`dpr={[1, 1.5]}`) and distance culling for locked 60 FPS in full-screen.
   - Half-resolution post-processing `UnrealBloomPass` glow.
@@ -59,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:5173/#/fisherman` to explore the Night Fisherman diorama, or toggle between the Shoreline, Aquarium, and Pool caustics scenes.
+Visit `http://localhost:5173/#/fisherman` for the Night Fisherman diorama, or jump directly to `http://localhost:5173/#/blackhole` for the GPU Black Hole simulation. You can also toggle between the Shoreline, Aquarium, and Pool caustics scenes.
 
 ### Build for Production
 
