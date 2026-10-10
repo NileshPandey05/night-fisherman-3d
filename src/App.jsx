@@ -26,6 +26,11 @@ export default function App() {
   const [bhBloomEnabled, setBhBloomEnabled] = useState(true)
   const [bhIsPaused, setBhIsPaused] = useState(false)
   const [bhCameraPreset, setBhCameraPreset] = useState('edge_on')
+  const [bhRaysEnabled, setBhRaysEnabled] = useState(true)
+  const [bhRayPattern, setBhRayPattern] = useState('all')
+  const [bhRayDensity, setBhRayDensity] = useState('medium')
+  const [bhRayColorPreset, setBhRayColorPreset] = useState('cyan')
+  const [bhRaySpeed, setBhRaySpeed] = useState(1.0)
 
   const handleTriggerAttack = () => {
     setIsPredatorAttacking(true)
@@ -261,6 +266,11 @@ export default function App() {
             bloomEnabled={bhBloomEnabled}
             isPaused={bhIsPaused}
             cameraPreset={bhCameraPreset}
+            raysEnabled={bhRaysEnabled}
+            rayPattern={bhRayPattern}
+            rayDensity={bhRayDensity}
+            rayColorPreset={bhRayColorPreset}
+            raySpeed={bhRaySpeed}
           />
         )}
       </Canvas>
@@ -283,6 +293,16 @@ export default function App() {
           setIsPaused={setBhIsPaused}
           cameraPreset={bhCameraPreset}
           setCameraPreset={setBhCameraPreset}
+          raysEnabled={bhRaysEnabled}
+          setRaysEnabled={setBhRaysEnabled}
+          rayPattern={bhRayPattern}
+          setRayPattern={setBhRayPattern}
+          rayDensity={bhRayDensity}
+          setRayDensity={setBhRayDensity}
+          rayColorPreset={bhRayColorPreset}
+          setRayColorPreset={setBhRayColorPreset}
+          raySpeed={bhRaySpeed}
+          setRaySpeed={setBhRaySpeed}
         />
       ) : sceneMode === 'night_fisherman' ? (
         <NightFishermanHUD

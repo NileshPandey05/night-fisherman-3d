@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react'
 import { OrbitControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { RelativisticLensingRaymarcher } from './RelativisticLensingRaymarcher'
+import { GeodesicRayTracers } from './GeodesicRayTracers'
 import { BloomPass } from '../NightFisherman/BloomPass'
 
 export function BlackHoleScene({
@@ -16,7 +17,14 @@ export function BlackHoleScene({
   qualityPreset = 'high',
   bloomEnabled = true,
   isPaused = false,
-  cameraPreset = 'edge_on'
+  cameraPreset = 'edge_on',
+  raysEnabled = true,
+  rayPattern = 'all',
+  rayDensity = 'medium',
+  rayColorPreset = 'cyan',
+  raySpeed = 1.0,
+  streamlineGlow = 0.18,
+  glowIntensity = 2.4
 }) {
   const controlsRef = useRef()
   const { camera } = useThree()
@@ -58,6 +66,20 @@ export function BlackHoleScene({
         temperatureScale={temperatureScale}
         diskTilt={diskTilt}
         qualityPreset={qualityPreset}
+        isPaused={isPaused}
+      />
+
+      {/* Relativistic Null-Geodesic Light Ray Tracers & Moving Photon Pulses */}
+      <GeodesicRayTracers
+        mass={mass}
+        enabled={raysEnabled}
+        rayPattern={rayPattern}
+        density={rayDensity}
+        colorPreset={rayColorPreset}
+        speed={raySpeed}
+        streamlineGlow={streamlineGlow}
+        glowIntensity={glowIntensity}
+        diskTilt={diskTilt}
         isPaused={isPaused}
       />
 

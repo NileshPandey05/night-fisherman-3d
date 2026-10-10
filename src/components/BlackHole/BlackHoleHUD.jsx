@@ -16,7 +16,17 @@ export function BlackHoleHUD({
   isPaused,
   setIsPaused,
   cameraPreset,
-  setCameraPreset
+  setCameraPreset,
+  raysEnabled = true,
+  setRaysEnabled,
+  rayPattern = 'all',
+  setRayPattern,
+  rayDensity = 'medium',
+  setRayDensity,
+  rayColorPreset = 'cyan',
+  setRayColorPreset,
+  raySpeed = 1.0,
+  setRaySpeed
 }) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -209,6 +219,132 @@ export function BlackHoleHUD({
                 style={{ width: '100%', accentColor: '#ff9828' }}
               />
             </div>
+          </div>
+
+          {/* Relativistic Light Ray Tracers Section */}
+          <div
+            style={{
+              background: 'rgba(15, 23, 42, 0.65)',
+              borderRadius: 8,
+              padding: 10,
+              border: '1px solid rgba(56, 189, 248, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontWeight: 600, fontSize: 11, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span>⚡</span>
+                <span>Light Rays & Bending (Geodesics)</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRaysEnabled && setRaysEnabled(!raysEnabled)}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: 4,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: raysEnabled ? '#0284c7' : 'rgba(255, 255, 255, 0.08)',
+                  color: raysEnabled ? '#ffffff' : '#94a3b8'
+                }}
+              >
+                {raysEnabled ? 'ON' : 'OFF'}
+              </button>
+            </div>
+
+            {raysEnabled && (
+              <>
+                {/* Ray Pattern Selector */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>
+                    Phenomenon Pattern:
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3 }}>
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'wavefront', label: 'Wavefront' },
+                      { id: 'arches', label: 'Arches' },
+                      { id: 'photon_ring', label: 'P-Ring' }
+                    ].map(p => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setRayPattern && setRayPattern(p.id)}
+                        style={{
+                          padding: '4px 0',
+                          borderRadius: 3,
+                          fontSize: 9,
+                          fontWeight: 600,
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: rayPattern === p.id ? '#38bdf8' : 'rgba(255, 255, 255, 0.06)',
+                          color: rayPattern === p.id ? '#0f172a' : '#cbd5e1'
+                        }}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Color Scheme */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>
+                    Laser Beam Palette:
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3 }}>
+                    {[
+                      { id: 'cyan', label: 'Cyan Laser' },
+                      { id: 'gold', label: 'Solar Gold' },
+                      { id: 'violet', label: 'Violet' },
+                      { id: 'spectral', label: 'Spectral' }
+                    ].map(c => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setRayColorPreset && setRayColorPreset(c.id)}
+                        style={{
+                          padding: '4px 0',
+                          borderRadius: 3,
+                          fontSize: 9,
+                          fontWeight: 600,
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: rayColorPreset === c.id ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.06)',
+                          color: rayColorPreset === c.id ? '#38bdf8' : '#94a3b8',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          borderColor: rayColorPreset === c.id ? '#38bdf8' : 'transparent'
+                        }}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ray Speed Slider */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <span style={{ fontSize: 10, color: '#94a3b8' }}>Photon Speed:</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#f1f5f9' }}>{raySpeed.toFixed(2)}c</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="2.5"
+                    step="0.1"
+                    value={raySpeed}
+                    onChange={e => setRaySpeed && setRaySpeed(parseFloat(e.target.value))}
+                    style={{ width: '100%', accentColor: '#38bdf8' }}
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Action Toggles */}
