@@ -3,6 +3,7 @@ import { OrbitControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { RelativisticLensingRaymarcher } from './RelativisticLensingRaymarcher'
 import { GeodesicRayTracers } from './GeodesicRayTracers'
+import { CinematicCameraController } from './CinematicCameraController'
 import { BloomPass } from '../NightFisherman/BloomPass'
 
 export function BlackHoleScene({
@@ -21,10 +22,13 @@ export function BlackHoleScene({
   raysEnabled = true,
   rayPattern = 'all',
   rayDensity = 'medium',
-  rayColorPreset = 'cyan',
+  rayColorPreset = 'amber',
   raySpeed = 1.0,
-  streamlineGlow = 0.18,
-  glowIntensity = 2.4
+  streamlineGlow = 0.16,
+  glowIntensity = 2.2,
+  shakeEnabled = true,
+  shakeIntensity = 0.45,
+  cameraControllerRef = null
 }) {
   const controlsRef = useRef()
   const { camera } = useThree()
@@ -91,6 +95,14 @@ export function BlackHoleScene({
         minDistance={3.5}
         maxDistance={28}
         rotateSpeed={0.7}
+      />
+
+      {/* Cinematic Camera Controller: smooth multi-frequency micro-motion & flyby cues */}
+      <CinematicCameraController
+        ref={cameraControllerRef}
+        controlsRef={controlsRef}
+        enabled={shakeEnabled}
+        intensity={shakeIntensity}
       />
 
       {/* Half-Resolution Post-Processing Bloom tuned for fiery filaments */}

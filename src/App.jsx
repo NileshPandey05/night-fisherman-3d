@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { ShorelineScene } from './components/ShorelineScene'
 import { AquariumScene } from './components/Aquarium'
@@ -29,12 +29,21 @@ export default function App() {
   const [bhRaysEnabled, setBhRaysEnabled] = useState(true)
   const [bhRayPattern, setBhRayPattern] = useState('all')
   const [bhRayDensity, setBhRayDensity] = useState('medium')
-  const [bhRayColorPreset, setBhRayColorPreset] = useState('cyan')
+  const [bhRayColorPreset, setBhRayColorPreset] = useState('amber')
   const [bhRaySpeed, setBhRaySpeed] = useState(1.0)
+  const [bhShakeEnabled, setBhShakeEnabled] = useState(true)
+  const [bhShakeIntensity, setBhShakeIntensity] = useState(0.45)
+  const bhCameraRef = useRef(null)
 
   const handleTriggerAttack = () => {
     setIsPredatorAttacking(true)
     setTimeout(() => setIsPredatorAttacking(false), 4500)
+  }
+
+  const handleTriggerFlyby = () => {
+    if (bhCameraRef.current) {
+      bhCameraRef.current.triggerFlyby({ duration: 2.4, amplitude: 0.4 })
+    }
   }
 
   useEffect(() => {
@@ -271,6 +280,9 @@ export default function App() {
             rayDensity={bhRayDensity}
             rayColorPreset={bhRayColorPreset}
             raySpeed={bhRaySpeed}
+            cameraControllerRef={bhCameraRef}
+            shakeEnabled={bhShakeEnabled}
+            shakeIntensity={bhShakeIntensity}
           />
         )}
       </Canvas>
@@ -303,6 +315,11 @@ export default function App() {
           setRayColorPreset={setBhRayColorPreset}
           raySpeed={bhRaySpeed}
           setRaySpeed={setBhRaySpeed}
+          shakeEnabled={bhShakeEnabled}
+          setShakeEnabled={setBhShakeEnabled}
+          shakeIntensity={bhShakeIntensity}
+          setShakeIntensity={setBhShakeIntensity}
+          onTriggerFlyby={handleTriggerFlyby}
         />
       ) : sceneMode === 'night_fisherman' ? (
         <NightFishermanHUD

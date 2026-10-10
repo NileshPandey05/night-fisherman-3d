@@ -23,10 +23,15 @@ export function BlackHoleHUD({
   setRayPattern,
   rayDensity = 'medium',
   setRayDensity,
-  rayColorPreset = 'cyan',
+  rayColorPreset = 'amber',
   setRayColorPreset,
   raySpeed = 1.0,
-  setRaySpeed
+  setRaySpeed,
+  shakeEnabled = true,
+  setShakeEnabled,
+  shakeIntensity = 0.45,
+  setShakeIntensity,
+  onTriggerFlyby
 }) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -294,12 +299,12 @@ export function BlackHoleHUD({
                 {/* Color Scheme */}
                 <div>
                   <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>
-                    Laser Beam Palette:
+                    Light Ray Palette:
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3 }}>
                     {[
-                      { id: 'cyan', label: 'Cyan Laser' },
-                      { id: 'gold', label: 'Solar Gold' },
+                      { id: 'amber', label: 'Amber' },
+                      { id: 'cyan', label: 'Cyan' },
                       { id: 'violet', label: 'Violet' },
                       { id: 'spectral', label: 'Spectral' }
                     ].map(c => (
@@ -314,11 +319,11 @@ export function BlackHoleHUD({
                           fontWeight: 600,
                           border: 'none',
                           cursor: 'pointer',
-                          background: rayColorPreset === c.id ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.06)',
-                          color: rayColorPreset === c.id ? '#38bdf8' : '#94a3b8',
+                          background: rayColorPreset === c.id ? 'rgba(255, 152, 40, 0.35)' : 'rgba(255, 255, 255, 0.06)',
+                          color: rayColorPreset === c.id ? '#ff9828' : '#94a3b8',
                           borderWidth: 1,
                           borderStyle: 'solid',
-                          borderColor: rayColorPreset === c.id ? '#38bdf8' : 'transparent'
+                          borderColor: rayColorPreset === c.id ? '#ff9828' : 'transparent'
                         }}
                       >
                         {c.label}
@@ -340,9 +345,87 @@ export function BlackHoleHUD({
                     step="0.1"
                     value={raySpeed}
                     onChange={e => setRaySpeed && setRaySpeed(parseFloat(e.target.value))}
-                    style={{ width: '100%', accentColor: '#38bdf8' }}
+                    style={{ width: '100%', accentColor: '#ff9828' }}
                   />
                 </div>
+              </>
+            )}
+          </div>
+
+          {/* Cinematic Camera Response Section */}
+          <div
+            style={{
+              background: 'rgba(15, 23, 42, 0.65)',
+              borderRadius: 8,
+              padding: 10,
+              border: '1px solid rgba(168, 85, 247, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontWeight: 600, fontSize: 11, color: '#c084fc', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span>🎥</span>
+                <span>Cinematic Camera Response</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShakeEnabled && setShakeEnabled(!shakeEnabled)}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: 4,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: shakeEnabled ? '#9333ea' : 'rgba(255, 255, 255, 0.08)',
+                  color: shakeEnabled ? '#ffffff' : '#94a3b8'
+                }}
+              >
+                {shakeEnabled ? 'ON' : 'OFF'}
+              </button>
+            </div>
+
+            {shakeEnabled && (
+              <>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <span style={{ fontSize: 10, color: '#94a3b8' }}>Micro-Motion Intensity:</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#f1f5f9' }}>{shakeIntensity.toFixed(2)}x</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.0"
+                    max="1.2"
+                    step="0.05"
+                    value={shakeIntensity}
+                    onChange={e => setShakeIntensity && setShakeIntensity(parseFloat(e.target.value))}
+                    style={{ width: '100%', accentColor: '#c084fc' }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onTriggerFlyby && onTriggerFlyby()}
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: 5,
+                    border: '1px solid rgba(192, 132, 252, 0.45)',
+                    background: 'rgba(147, 51, 234, 0.22)',
+                    color: '#e9d5ff',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}
+                >
+                  <span>🚀</span>
+                  <span>Trigger Flyby Impulse</span>
+                </button>
               </>
             )}
           </div>
