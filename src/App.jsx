@@ -33,6 +33,7 @@ export default function App() {
   const [bhRaySpeed, setBhRaySpeed] = useState(1.0)
   const [bhShakeEnabled, setBhShakeEnabled] = useState(true)
   const [bhShakeIntensity, setBhShakeIntensity] = useState(0.45)
+  const [bhGalaxyBrightness, setBhGalaxyBrightness] = useState(1.0)
   const bhCameraRef = useRef(null)
 
   const handleTriggerAttack = () => {
@@ -283,6 +284,7 @@ export default function App() {
             cameraControllerRef={bhCameraRef}
             shakeEnabled={bhShakeEnabled}
             shakeIntensity={bhShakeIntensity}
+            galaxyBrightness={bhGalaxyBrightness}
           />
         )}
       </Canvas>
@@ -320,6 +322,8 @@ export default function App() {
           shakeIntensity={bhShakeIntensity}
           setShakeIntensity={setBhShakeIntensity}
           onTriggerFlyby={handleTriggerFlyby}
+          galaxyBrightness={bhGalaxyBrightness}
+          setGalaxyBrightness={setBhGalaxyBrightness}
         />
       ) : sceneMode === 'night_fisherman' ? (
         <NightFishermanHUD

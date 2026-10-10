@@ -28,6 +28,7 @@ export function BlackHoleScene({
   glowIntensity = 2.2,
   shakeEnabled = true,
   shakeIntensity = 0.45,
+  galaxyBrightness = 1.0,
   cameraControllerRef = null
 }) {
   const controlsRef = useRef()
@@ -69,6 +70,7 @@ export function BlackHoleScene({
         dopplerGain={dopplerGain}
         temperatureScale={temperatureScale}
         diskTilt={diskTilt}
+        galaxyBrightness={galaxyBrightness}
         qualityPreset={qualityPreset}
         isPaused={isPaused}
       />

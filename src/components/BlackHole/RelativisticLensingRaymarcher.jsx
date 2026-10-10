@@ -37,6 +37,7 @@ const raymarchFragmentShader = `
   uniform float uDopplerGain;
   uniform float uTemperatureScale;
   uniform float uDiskTilt;
+  uniform float uGalaxyBrightness;
   uniform int uMaxSteps;
   uniform vec3 uCameraPos;
 
@@ -92,8 +93,10 @@ const raymarchFragmentShader = `
       float cSph = rCam * rCam - rMaxBound * rMaxBound;
       float dSph = bSph * bSph - cSph;
       if (dSph < 0.0 || bSph > 0.0) {
-        // Misses bounding sphere entirely
-        gl_FragColor = vec4(0.0);
+        // Misses bounding sphere entirely: sample undeflected galaxy starfield
+        vec3 bgStars = sampleGalaxyStars(rayDir, uTime, uGalaxyBrightness);
+        vec3 mappedBg = (bgStars * (2.51 * bgStars + 0.03)) / (bgStars * (2.43 * bgStars + 0.59) + 0.14);
+        gl_FragColor = vec4(clamp(mappedBg, 0.0, 1.0), 1.0);
         return;
       }
       float tEnter = -bSph - sqrt(dSph);
@@ -182,6 +185,12 @@ const raymarchFragmentShader = `
     // the remaining radiance is 0 (pure pitch-black shadow silhouette)
     if (hitHorizon) {
       accumColor *= accumOpacity;
+    } else {
+      // Ray escaped to infinity!
+      // Sample procedural deep space galaxy stars along the physically deflected ray direction
+      vec3 lensedDir = normalize(vCurr);
+      vec3 galaxyStars = sampleGalaxyStars(lensedDir, uTime, uGalaxyBrightness);
+      accumColor += galaxyStars * (1.0 - accumOpacity);
     }
 
     // Tonemapping & contrast enhancement matching the fiery reference image
@@ -190,12 +199,8 @@ const raymarchFragmentShader = `
     vec3 mapped = (x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14);
     mapped = clamp(mapped, 0.0, 1.0);
 
-    // Deep black background: if no disk emission was encountered, alpha is 0
-    float finalAlpha = clamp(accumOpacity, 0.0, 1.0);
-    if (hitHorizon && accumOpacity < 0.95) {
-      // The shadow is an opaque black absorber
-      finalAlpha = 1.0;
-    }
+    // Deep black background: if hit horizon, pure black absorber; if escaped, fully opaque
+    float finalAlpha = 1.0;
 
     gl_FragColor = vec4(mapped, finalAlpha);
   }
@@ -210,6 +215,7 @@ export function RelativisticLensingRaymarcher({
   dopplerGain = 1.0,
   temperatureScale = 1.15,
   diskTilt = 0.12, // ~83° nearly edge-on default inclination
+  galaxyBrightness = 1.0,
   qualityPreset = 'high',
   isPaused = false
 }) {
@@ -237,9 +243,10 @@ export function RelativisticLensingRaymarcher({
     uDopplerGain: { value: dopplerGain },
     uTemperatureScale: { value: temperatureScale },
     uDiskTilt: { value: diskTilt },
+    uGalaxyBrightness: { value: galaxyBrightness },
     uMaxSteps: { value: maxSteps },
     uCameraPos: { value: new THREE.Vector3() }
-  }), [mass, rIn, rOut, driftSpeed, rotationSpeed, dopplerGain, temperatureScale, diskTilt, maxSteps])
+  }), [mass, rIn, rOut, driftSpeed, rotationSpeed, dopplerGain, temperatureScale, diskTilt, galaxyBrightness, maxSteps])
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -257,6 +264,7 @@ export function RelativisticLensingRaymarcher({
       uniforms.uDopplerGain.value = dopplerGain
       uniforms.uTemperatureScale.value = temperatureScale
       uniforms.uDiskTilt.value = diskTilt
+      uniforms.uGalaxyBrightness.value = galaxyBrightness
       uniforms.uMaxSteps.value = maxSteps
       uniforms.uCameraPos.value.copy(camera.position)
     }

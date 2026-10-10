@@ -31,7 +31,9 @@ export function BlackHoleHUD({
   setShakeEnabled,
   shakeIntensity = 0.45,
   setShakeIntensity,
-  onTriggerFlyby
+  onTriggerFlyby,
+  galaxyBrightness = 1.0,
+  setGalaxyBrightness
 }) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -427,6 +429,60 @@ export function BlackHoleHUD({
                   <span>Trigger Flyby Impulse</span>
                 </button>
               </>
+            )}
+          </div>
+
+          {/* Deep Space Galaxy & Lensed Starfield Section */}
+          <div
+            style={{
+              background: 'rgba(15, 23, 42, 0.65)',
+              borderRadius: 8,
+              padding: 10,
+              border: '1px solid rgba(147, 197, 253, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontWeight: 600, fontSize: 11, color: '#93c5fd', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span>🌌</span>
+                <span>Galaxy Stars & Lensing</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGalaxyBrightness && setGalaxyBrightness(galaxyBrightness > 0 ? 0 : 1.0)}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: 4,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: galaxyBrightness > 0 ? '#2563eb' : 'rgba(255, 255, 255, 0.08)',
+                  color: galaxyBrightness > 0 ? '#ffffff' : '#94a3b8'
+                }}
+              >
+                {galaxyBrightness > 0 ? 'ON' : 'OFF'}
+              </button>
+            </div>
+
+            {galaxyBrightness > 0 && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>Stellar Nebula Brightness:</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: '#f1f5f9' }}>{galaxyBrightness.toFixed(2)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="2.0"
+                  step="0.05"
+                  value={galaxyBrightness}
+                  onChange={e => setGalaxyBrightness && setGalaxyBrightness(parseFloat(e.target.value))}
+                  style={{ width: '100%', accentColor: '#93c5fd' }}
+                />
+              </div>
             )}
           </div>
 

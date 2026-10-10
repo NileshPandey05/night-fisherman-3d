@@ -144,4 +144,80 @@ export const accretionDiskGLSL = `
 
     return vec4(color, opacity);
   }
+
+  // Procedural Deep-Sky Galaxy Stars & Cosmic Nebula Background
+  // Sampled by escaping null geodesics to render physical gravitational lensing of background stars
+  vec3 sampleGalaxyStars(vec3 dir, float time, float galaxyBrightness) {
+    if (galaxyBrightness <= 0.001) return vec3(0.0);
+
+    // 1. Cosmic Milky Way / Galactic Band
+    // Galactic equator tilted ~28 degrees around X and Z
+    vec3 galDir = vec3(
+      dir.x * 0.866 - dir.z * 0.5,
+      dir.y * 0.92 + dir.z * 0.38,
+      dir.x * 0.5 + dir.z * 0.866
+    );
+    float galLat = abs(galDir.y);
+    float galDisk = exp(-galLat * 3.6); // Concentrated in galactic disk
+
+    // Turbulent interstellar dust clouds
+    float dust1 = fbmPlasma(galDir.xz * 2.4 + vec2(1.5, 3.2));
+    float dust2 = fbmPlasma(galDir.xy * 3.2 + vec2(time * 0.004, 0.0));
+    float nebulaDust = galDisk * (0.35 + 0.65 * dust1 * dust2);
+
+    // Cosmic nebula palette: deep midnight blue, galactic violet, celestial teal
+    vec3 nebColor = mix(
+      vec3(0.015, 0.028, 0.068),
+      vec3(0.068, 0.024, 0.098),
+      clamp(galDir.x * 0.5 + 0.5, 0.0, 1.0)
+    );
+    nebColor += vec3(0.018, 0.048, 0.082) * clamp(dust2, 0.0, 1.0);
+    vec3 nebulaGlow = nebColor * nebulaDust * 1.7;
+
+    // 2. High-Density Multi-Magnitude Starfield
+    vec3 stars = vec3(0.0);
+
+    // Layer 1: Bright Primary Guide Stars (intense, colorful: blue-white, gold, red giant)
+    vec3 p1 = dir * 140.0;
+    vec3 ip1 = floor(p1);
+    vec3 fp1 = fract(p1);
+    float h1 = hash1(ip1.xy + ip1.z * 71.3);
+    if (h1 > 0.988) {
+      float d1 = length(fp1 - 0.5);
+      float starCore = smoothstep(0.18, 0.01, d1);
+      vec3 starColor = mix(
+        vec3(0.72, 0.88, 1.0),
+        mix(vec3(1.0, 0.94, 0.72), vec3(1.0, 0.52, 0.32), fract(h1 * 93.1)),
+        fract(h1 * 47.7)
+      );
+      stars += starCore * starColor * (h1 - 0.988) * 95.0;
+    }
+
+    // Layer 2: Medium Field Stars
+    vec3 p2 = dir * 280.0;
+    vec3 ip2 = floor(p2);
+    vec3 fp2 = fract(p2);
+    float h2 = hash1(ip2.xy + ip2.z * 113.7);
+    if (h2 > 0.978) {
+      float d2 = length(fp2 - 0.5);
+      float starCore = smoothstep(0.22, 0.02, d2);
+      vec3 starColor = mix(vec3(0.85, 0.92, 1.0), vec3(1.0, 0.88, 0.68), fract(h2 * 31.9));
+      stars += starCore * starColor * (h2 - 0.978) * 42.0;
+    }
+
+    // Layer 3: Faint Cosmic Stellar Dust
+    vec3 p3 = dir * 520.0;
+    vec3 ip3 = floor(p3);
+    vec3 fp3 = fract(p3);
+    float h3 = hash1(ip3.xy + ip3.z * 227.1);
+    if (h3 > 0.965) {
+      float d3 = length(fp3 - 0.5);
+      float starCore = smoothstep(0.28, 0.05, d3);
+      stars += starCore * vec3(0.88, 0.94, 1.0) * (h3 - 0.965) * 15.0;
+    }
+
+    stars *= (0.5 + 1.1 * galDisk);
+
+    return (nebulaGlow + stars) * galaxyBrightness;
+  }
 `
