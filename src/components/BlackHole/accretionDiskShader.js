@@ -220,4 +220,4 @@ export const accretionDiskGLSL = `
 
     return (nebulaGlow + stars) * galaxyBrightness;
   }
-`
+`;
