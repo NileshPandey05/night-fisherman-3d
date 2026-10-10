@@ -1,46 +1,42 @@
 import React, { useRef, useEffect } from 'react'
 import { OrbitControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import * as THREE from 'three'
-import { EventHorizon } from './EventHorizon'
-import { PhotonRing } from './PhotonRing'
-import { AccretionDiskParticles } from './AccretionDiskParticles'
-import { GravitationalLensingBackdrop } from './GravitationalLensingBackdrop'
-import { RelativisticJets } from './RelativisticJets'
+import { RelativisticLensingRaymarcher } from './RelativisticLensingRaymarcher'
 import { BloomPass } from '../NightFisherman/BloomPass'
 
 export function BlackHoleScene({
   mass = 1.0,
-  particleCount = 50000,
+  rIn = 3.0,
+  rOut = 15.5,
   driftSpeed = 0.85,
-  diskTilt = 0.32,
-  dopplerStrength = 1.0,
-  photonRingEnabled = true,
-  photonRingIntensity = 2.4,
-  lensingEnabled = true,
-  lensingStrength = 1.0,
-  jetsEnabled = true,
+  rotationSpeed = 1.0,
+  dopplerGain = 0.85,
+  temperatureScale = 1.15,
+  diskTilt = 0.1, // ~84° inclination
+  qualityPreset = 'high',
   bloomEnabled = true,
-  cameraPreset = 'cinematic'
+  isPaused = false,
+  cameraPreset = 'edge_on'
 }) {
   const controlsRef = useRef()
   const { camera } = useThree()
 
-  // Camera presets
+  // Camera presets matching the cinematic reference
   useEffect(() => {
     if (!controlsRef.current) return
 
-    if (cameraPreset === 'cinematic') {
-      camera.position.set(0, 4.2, 11.5)
+    if (cameraPreset === 'edge_on') {
+      // Matches the reference image: nearly edge-on with horizontal foreground disk and huge upper arch
+      camera.position.set(0, 0.85, 11.2)
       controlsRef.current.target.set(0, 0, 0)
-    } else if (cameraPreset === 'edge_on') {
-      camera.position.set(0, 0.4, 13.5)
+    } else if (cameraPreset === 'slight_tilt') {
+      camera.position.set(0, 2.2, 11.0)
+      controlsRef.current.target.set(0, 0, 0)
+    } else if (cameraPreset === 'oblique') {
+      camera.position.set(0, 6.8, 9.2)
       controlsRef.current.target.set(0, 0, 0)
     } else if (cameraPreset === 'polar') {
-      camera.position.set(0, 14.5, 0.01)
-      controlsRef.current.target.set(0, 0, 0)
-    } else if (cameraPreset === 'horizon_closeup') {
-      camera.position.set(0, 1.8, 5.2)
+      camera.position.set(0, 13.5, 0.01)
       controlsRef.current.target.set(0, 0, 0)
     }
     controlsRef.current.update()
@@ -48,56 +44,40 @@ export function BlackHoleScene({
 
   return (
     <>
-      <color attach="background" args={['#010308']} />
+      {/* Pure Deep Space Void */}
+      <color attach="background" args={['#000000']} />
 
-      {/* Relativistic Gravitational Lensing & Background Starfield */}
-      <GravitationalLensingBackdrop
+      {/* Relativistic Null-Geodesic Lensing Raymarcher */}
+      <RelativisticLensingRaymarcher
         mass={mass}
-        lensingStrength={lensingStrength}
-        diskTilt={diskTilt}
-        enabled={lensingEnabled}
-      />
-
-      {/* Central Black Hole Event Horizon */}
-      <EventHorizon mass={mass} />
-
-      {/* Razor-Sharp Relativistic Photon Ring */}
-      <PhotonRing
-        mass={mass}
-        intensity={photonRingIntensity}
-        dopplerIntensity={dopplerStrength}
-        enabled={photonRingEnabled}
-      />
-
-      {/* 50,000 - 100,000 GPU-Accelerated Accretion Disk Particles */}
-      <AccretionDiskParticles
-        particleCount={particleCount}
-        mass={mass}
+        rIn={rIn}
+        rOut={rOut}
         driftSpeed={driftSpeed}
+        rotationSpeed={rotationSpeed}
+        dopplerGain={dopplerGain}
+        temperatureScale={temperatureScale}
         diskTilt={diskTilt}
-        dopplerStrength={dopplerStrength}
+        qualityPreset={qualityPreset}
+        isPaused={isPaused}
       />
 
-      {/* Relativistic Polar Jets */}
-      <RelativisticJets enabled={jetsEnabled} />
-
-      {/* Smooth OrbitControls */}
+      {/* OrbitControls with damping */}
       <OrbitControls
         ref={controlsRef}
         enableDamping
-        dampingFactor={0.05}
-        minDistance={2.5}
-        maxDistance={35}
-        rotateSpeed={0.8}
+        dampingFactor={0.06}
+        minDistance={3.5}
+        maxDistance={28}
+        rotateSpeed={0.7}
       />
 
-      {/* Half-Resolution UnrealBloomPass Post-Processing */}
+      {/* Half-Resolution Post-Processing Bloom tuned for fiery filaments */}
       {bloomEnabled && (
         <BloomPass
           enabled={true}
-          strength={0.45}
+          strength={0.55}
           radius={0.65}
-          threshold={0.62}
+          threshold={0.72} // Strict threshold preserves pitch-black event horizon silhouette
         />
       )}
     </>

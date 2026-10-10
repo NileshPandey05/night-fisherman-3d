@@ -17,16 +17,15 @@ export default function App() {
   const [causticsEnabled, setCausticsEnabled] = useState(true)
   const [isPredatorAttacking, setIsPredatorAttacking] = useState(false)
 
-  // Black Hole Simulation State
+  // Black Hole Relativistic Simulation State
   const [bhMass, setBhMass] = useState(1.0)
-  const [bhParticleCount, setBhParticleCount] = useState(50000)
-  const [bhDriftSpeed, setBhDriftSpeed] = useState(0.85)
-  const [bhDopplerStrength, setBhDopplerStrength] = useState(1.0)
-  const [bhLensingStrength, setBhLensingStrength] = useState(1.0)
-  const [bhPhotonRingEnabled, setBhPhotonRingEnabled] = useState(true)
-  const [bhJetsEnabled, setBhJetsEnabled] = useState(true)
+  const [bhRotationSpeed, setBhRotationSpeed] = useState(1.0)
+  const [bhDopplerGain, setBhDopplerGain] = useState(0.85)
+  const [bhTemperatureScale, setBhTemperatureScale] = useState(1.15)
+  const [bhQualityPreset, setBhQualityPreset] = useState('high')
   const [bhBloomEnabled, setBhBloomEnabled] = useState(true)
-  const [bhCameraPreset, setBhCameraPreset] = useState('cinematic')
+  const [bhIsPaused, setBhIsPaused] = useState(false)
+  const [bhCameraPreset, setBhCameraPreset] = useState('edge_on')
 
   const handleTriggerAttack = () => {
     setIsPredatorAttacking(true)
@@ -255,13 +254,12 @@ export default function App() {
         {sceneMode === 'blackhole' && (
           <BlackHoleScene
             mass={bhMass}
-            particleCount={bhParticleCount}
-            driftSpeed={bhDriftSpeed}
-            dopplerStrength={bhDopplerStrength}
-            lensingStrength={bhLensingStrength}
-            photonRingEnabled={bhPhotonRingEnabled}
-            jetsEnabled={bhJetsEnabled}
+            rotationSpeed={bhRotationSpeed}
+            dopplerGain={bhDopplerGain}
+            temperatureScale={bhTemperatureScale}
+            qualityPreset={bhQualityPreset}
             bloomEnabled={bhBloomEnabled}
+            isPaused={bhIsPaused}
             cameraPreset={bhCameraPreset}
           />
         )}
@@ -271,20 +269,18 @@ export default function App() {
         <BlackHoleHUD
           mass={bhMass}
           setMass={setBhMass}
-          particleCount={bhParticleCount}
-          setParticleCount={setBhParticleCount}
-          driftSpeed={bhDriftSpeed}
-          setDriftSpeed={setBhDriftSpeed}
-          dopplerStrength={bhDopplerStrength}
-          setDopplerStrength={setBhDopplerStrength}
-          lensingStrength={bhLensingStrength}
-          setLensingStrength={setBhLensingStrength}
-          photonRingEnabled={bhPhotonRingEnabled}
-          setPhotonRingEnabled={setBhPhotonRingEnabled}
-          jetsEnabled={bhJetsEnabled}
-          setJetsEnabled={setBhJetsEnabled}
+          rotationSpeed={bhRotationSpeed}
+          setRotationSpeed={setBhRotationSpeed}
+          dopplerGain={bhDopplerGain}
+          setDopplerGain={setBhDopplerGain}
+          temperatureScale={bhTemperatureScale}
+          setTemperatureScale={setBhTemperatureScale}
+          qualityPreset={bhQualityPreset}
+          setQualityPreset={setBhQualityPreset}
           bloomEnabled={bhBloomEnabled}
           setBloomEnabled={setBhBloomEnabled}
+          isPaused={bhIsPaused}
+          setIsPaused={setBhIsPaused}
           cameraPreset={bhCameraPreset}
           setCameraPreset={setBhCameraPreset}
         />

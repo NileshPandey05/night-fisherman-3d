@@ -3,20 +3,18 @@ import React, { useState } from 'react'
 export function BlackHoleHUD({
   mass,
   setMass,
-  particleCount,
-  setParticleCount,
-  driftSpeed,
-  setDriftSpeed,
-  dopplerStrength,
-  setDopplerStrength,
-  lensingStrength,
-  setLensingStrength,
-  photonRingEnabled,
-  setPhotonRingEnabled,
-  jetsEnabled,
-  setJetsEnabled,
+  rotationSpeed,
+  setRotationSpeed,
+  dopplerGain,
+  setDopplerGain,
+  temperatureScale,
+  setTemperatureScale,
+  qualityPreset,
+  setQualityPreset,
   bloomEnabled,
   setBloomEnabled,
+  isPaused,
+  setIsPaused,
   cameraPreset,
   setCameraPreset
 }) {
@@ -34,26 +32,26 @@ export function BlackHoleHUD({
         right: 16,
         zIndex: 1000,
         width: 320,
-        background: 'rgba(8, 14, 24, 0.88)',
-        backdropFilter: 'blur(14px)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        background: 'rgba(8, 12, 20, 0.90)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255, 166, 59, 0.22)',
         borderRadius: 12,
         padding: 16,
-        color: '#e2e8f0',
+        color: '#f1f5f9',
         fontFamily: 'system-ui, -apple-system, sans-serif',
         fontSize: 12,
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.65)'
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.75)'
       }}
     >
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#ffb950', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#ff9828', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span>🕳️</span>
-            <span>Black Hole Simulation</span>
+            <span>Relativistic Lensing Studio</span>
           </div>
           <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>
-            Astrophysical General Relativity & GPU Disk
+            Kip Thorne Null-Geodesic Spacetime Raymarcher
           </div>
         </div>
         <button
@@ -75,34 +73,68 @@ export function BlackHoleHUD({
 
       {!collapsed && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Quality / Particle Count Pills */}
+          {/* Quality Presets */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
-              Particle Count ({particleCount.toLocaleString()} Tracers):
+              Raymarch Quality ({qualityPreset.toUpperCase()}):
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
               {[
-                { label: '10K', count: 10000 },
-                { label: '25K', count: 25000 },
-                { label: '50K', count: 50000 },
-                { label: '100K', count: 100000 }
+                { id: 'low', label: '26 Steps' },
+                { id: 'medium', label: '38 Steps' },
+                { id: 'high', label: '56 Steps' },
+                { id: 'ultra', label: '72 Steps' }
               ].map(q => (
                 <button
-                  key={q.count}
+                  key={q.id}
                   type="button"
-                  onClick={() => setParticleCount(q.count)}
+                  onClick={() => setQualityPreset(q.id)}
                   style={{
                     padding: '5px 0',
                     border: 'none',
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: 600,
                     cursor: 'pointer',
-                    background: particleCount === q.count ? '#ffb950' : 'rgba(255, 255, 255, 0.06)',
-                    color: particleCount === q.count ? '#0f172a' : '#94a3b8'
+                    background: qualityPreset === q.id ? '#ff9828' : 'rgba(255, 255, 255, 0.06)',
+                    color: qualityPreset === q.id ? '#0f172a' : '#94a3b8'
                   }}
                 >
-                  {q.label}
+                  {q.id.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Camera View Presets */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+              Camera Perspectives:
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
+              {[
+                { id: 'edge_on', label: '🎬 Edge-On (Target)' },
+                { id: 'slight_tilt', label: '📐 78° Tilt' },
+                { id: 'oblique', label: '🔭 45° Oblique' },
+                { id: 'polar', label: '👁️ Top Polar' }
+              ].map(cam => (
+                <button
+                  key={cam.id}
+                  type="button"
+                  onClick={() => setCameraPreset(cam.id)}
+                  style={{
+                    padding: '6px 8px',
+                    border: 'none',
+                    borderRadius: 4,
+                    fontSize: 10,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: cameraPreset === cam.id ? 'rgba(255, 152, 40, 0.25)' : 'rgba(255, 255, 255, 0.06)',
+                    color: cameraPreset === cam.id ? '#ffb950' : '#94a3b8',
+                    textAlign: 'left'
+                  }}
+                >
+                  {cam.label}
                 </button>
               ))}
             </div>
@@ -118,182 +150,128 @@ export function BlackHoleHUD({
               </div>
               <input
                 type="range"
-                min="0.5"
-                max="2.2"
+                min="0.6"
+                max="1.8"
                 step="0.05"
                 value={mass}
                 onChange={e => setMass(parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#ffb950' }}
+                style={{ width: '100%', accentColor: '#ff9828' }}
               />
             </div>
 
-            {/* Inward Drift Speed */}
+            {/* Rotation Speed */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                <span style={{ color: '#94a3b8' }}>Viscous Inward Drift:</span>
-                <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{driftSpeed.toFixed(2)}x</span>
+                <span style={{ color: '#94a3b8' }}>Keplerian Rotation:</span>
+                <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{rotationSpeed.toFixed(2)}x</span>
               </div>
               <input
                 type="range"
-                min="0.2"
+                min="0.1"
                 max="2.5"
                 step="0.1"
-                value={driftSpeed}
-                onChange={e => setDriftSpeed(parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#ffb950' }}
+                value={rotationSpeed}
+                onChange={e => setRotationSpeed(parseFloat(e.target.value))}
+                style={{ width: '100%', accentColor: '#ff9828' }}
               />
             </div>
 
             {/* Relativistic Doppler Beaming */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                <span style={{ color: '#94a3b8' }}>Doppler Beaming Boost:</span>
-                <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{dopplerStrength.toFixed(1)}x</span>
+                <span style={{ color: '#94a3b8' }}>Doppler Beaming (δ⁴):</span>
+                <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{dopplerGain.toFixed(2)}x</span>
               </div>
               <input
                 type="range"
                 min="0.0"
-                max="2.0"
-                step="0.1"
-                value={dopplerStrength}
-                onChange={e => setDopplerStrength(parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#ffb950' }}
+                max="1.5"
+                step="0.05"
+                value={dopplerGain}
+                onChange={e => setDopplerGain(parseFloat(e.target.value))}
+                style={{ width: '100%', accentColor: '#ff9828' }}
               />
             </div>
 
-            {/* Gravitational Lensing Strength */}
+            {/* Temperature / Emission Scale */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                <span style={{ color: '#94a3b8' }}>Gravitational Lensing:</span>
-                <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{lensingStrength.toFixed(1)}x</span>
+                <span style={{ color: '#94a3b8' }}>Thermal Emission (T):</span>
+                <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{temperatureScale.toFixed(2)}x</span>
               </div>
               <input
                 type="range"
-                min="0.0"
+                min="0.5"
                 max="2.0"
-                step="0.1"
-                value={lensingStrength}
-                onChange={e => setLensingStrength(parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#ffb950' }}
+                step="0.05"
+                value={temperatureScale}
+                onChange={e => setTemperatureScale(parseFloat(e.target.value))}
+                style={{ width: '100%', accentColor: '#ff9828' }}
               />
             </div>
           </div>
 
-          {/* Toggle Switches */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, paddingTop: 4 }}>
+          {/* Action Toggles */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, paddingTop: 4 }}>
             <button
               type="button"
-              onClick={() => setPhotonRingEnabled(!photonRingEnabled)}
+              onClick={() => setIsPaused(!isPaused)}
               style={{
-                padding: '6px 4px',
+                padding: '6px',
                 border: 'none',
                 borderRadius: 6,
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: 600,
                 cursor: 'pointer',
-                background: photonRingEnabled ? 'rgba(255, 185, 80, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                color: photonRingEnabled ? '#ffb950' : '#64748b',
+                background: isPaused ? 'rgba(239, 68, 68, 0.25)' : 'rgba(34, 197, 94, 0.2)',
+                color: isPaused ? '#fca5a5' : '#86efac',
                 borderWidth: 1,
                 borderStyle: 'solid',
-                borderColor: photonRingEnabled ? 'rgba(255, 185, 80, 0.4)' : 'transparent'
+                borderColor: isPaused ? 'rgba(239, 68, 68, 0.5)' : 'rgba(34, 197, 94, 0.4)'
               }}
             >
-              💫 Photon Ring
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setJetsEnabled(!jetsEnabled)}
-              style={{
-                padding: '6px 4px',
-                border: 'none',
-                borderRadius: 6,
-                fontSize: 10,
-                fontWeight: 600,
-                cursor: 'pointer',
-                background: jetsEnabled ? 'rgba(96, 165, 250, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                color: jetsEnabled ? '#93c5fd' : '#64748b',
-                borderWidth: 1,
-                borderStyle: 'solid',
-                borderColor: jetsEnabled ? 'rgba(96, 165, 250, 0.4)' : 'transparent'
-              }}
-            >
-              ⚡ Polar Jets
+              {isPaused ? '▶ Resume' : '⏸ Pause'}
             </button>
 
             <button
               type="button"
               onClick={() => setBloomEnabled(!bloomEnabled)}
               style={{
-                padding: '6px 4px',
+                padding: '6px',
                 border: 'none',
                 borderRadius: 6,
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: 600,
                 cursor: 'pointer',
-                background: bloomEnabled ? 'rgba(244, 63, 94, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                color: bloomEnabled ? '#fda4af' : '#64748b',
+                background: bloomEnabled ? 'rgba(255, 152, 40, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                color: bloomEnabled ? '#ffb950' : '#64748b',
                 borderWidth: 1,
                 borderStyle: 'solid',
-                borderColor: bloomEnabled ? 'rgba(244, 63, 94, 0.4)' : 'transparent'
+                borderColor: bloomEnabled ? 'rgba(255, 152, 40, 0.4)' : 'transparent'
               }}
             >
               ✨ Bloom Glow
             </button>
           </div>
 
-          {/* Camera View Presets */}
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
-              Camera Perspectives:
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
-              {[
-                { id: 'cinematic', label: '🎬 Cinematic' },
-                { id: 'edge_on', label: '📐 Edge-On' },
-                { id: 'polar', label: '🔭 Top Polar' },
-                { id: 'horizon_closeup', label: '👁️ Close-Up' }
-              ].map(cam => (
-                <button
-                  key={cam.id}
-                  type="button"
-                  onClick={() => setCameraPreset(cam.id)}
-                  style={{
-                    padding: '5px 8px',
-                    border: 'none',
-                    borderRadius: 4,
-                    fontSize: 10,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    background: cameraPreset === cam.id ? 'rgba(255, 185, 80, 0.25)' : 'rgba(255, 255, 255, 0.06)',
-                    color: cameraPreset === cam.id ? '#ffb950' : '#94a3b8',
-                    textAlign: 'left'
-                  }}
-                >
-                  {cam.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Astrophysical Telemetry Box */}
+          {/* Physical Metric Telemetry */}
           <div
             style={{
-              background: 'rgba(0, 0, 0, 0.45)',
+              background: 'rgba(0, 0, 0, 0.55)',
               borderRadius: 6,
               padding: 8,
               fontSize: 10,
               fontFamily: 'monospace',
               color: '#94a3b8',
               lineHeight: 1.5,
-              border: '1px solid rgba(255, 255, 255, 0.06)'
+              border: '1px solid rgba(255, 255, 255, 0.08)'
             }}
           >
-            <div><strong>Rs (Horizon):</strong> {rs} u (2GM/c²)</div>
-            <div><strong>ISCO (Orbit Min):</strong> {isco} u (3.0 Rs)</div>
-            <div><strong>Shadow Radius:</strong> {shadow} u (2.6 Rs)</div>
-            <div style={{ color: '#10b981', marginTop: 4 }}>
-              ● 60 FPS Locked · GPU Vertex Advection
+            <div><strong>Event Horizon (Rs):</strong> {rs} u</div>
+            <div><strong>ISCO Inner Rim:</strong> {isco} u (3.0 Rs)</div>
+            <div><strong>Lensed Shadow (bcrit):</strong> {shadow} u (2.6 Rs)</div>
+            <div style={{ color: '#ff9828', marginTop: 4 }}>
+              ● Geodesic Upper/Lower Arches Active
             </div>
           </div>
         </div>
