@@ -1,6 +1,6 @@
-import React, { useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
-import * as THREE from 'three'
+import React, { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 const diskParticleVertexShader = `
   uniform float uTime;
@@ -130,7 +130,7 @@ const diskParticleVertexShader = `
     // Size attenuation with distance
     gl_PointSize = (aSize * uSizeScale * (380.0 / -mvPosition.z)) * (0.8 + 0.5 * tempNorm);
   }
-`
+`;
 
 const diskParticleFragmentShader = `
   varying vec3 vColor;
@@ -151,7 +151,7 @@ const diskParticleFragmentShader = `
 
     gl_FragColor = vec4(vColor, finalAlpha);
   }
-`
+`;
 
 export function AccretionDiskParticles({
   particleCount = 50000,
@@ -159,84 +159,98 @@ export function AccretionDiskParticles({
   driftSpeed = 0.85,
   diskTilt = 0.32,
   dopplerStrength = 1.0,
-  sizeScale = 1.0
+  sizeScale = 1.0,
 }) {
-  const pointsRef = useRef()
+  const pointsRef = useRef();
 
   const [geometry, count] = useMemo(() => {
-    const rs = 1.0 * mass
-    const rIsco = 3.0 * rs
-    const rMax = 16.0 * rs
+    const rs = 1.0 * mass;
+    const rIsco = 3.0 * rs;
+    const rMax = 16.0 * rs;
 
-    const positions = new Float32Array(particleCount * 3)
-    const initialRadii = new Float32Array(particleCount)
-    const initialAngles = new Float32Array(particleCount)
-    const heightOffsets = new Float32Array(particleCount)
-    const driftSeeds = new Float32Array(particleCount)
-    const sizes = new Float32Array(particleCount)
-    const turbulences = new Float32Array(particleCount)
+    const positions = new Float32Array(particleCount * 3);
+    const initialRadii = new Float32Array(particleCount);
+    const initialAngles = new Float32Array(particleCount);
+    const heightOffsets = new Float32Array(particleCount);
+    const driftSeeds = new Float32Array(particleCount);
+    const sizes = new Float32Array(particleCount);
+    const turbulences = new Float32Array(particleCount);
 
     // Deterministic pseudo-random seed generator
-    let seed = 1337
+    let seed = 1337;
     const random = () => {
-      seed = (seed * 16807) % 2147483647
-      return (seed - 1) / 2147483646
-    }
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
 
     for (let i = 0; i < particleCount; i++) {
       // Power-law density distribution: denser towards ISCO
       // r = rIsco + (rMax - rIsco) * u^1.4
-      const u = random()
-      const radius = rIsco + (rMax - rIsco) * Math.pow(u, 1.35)
-      const angle = random() * Math.PI * 2.0
+      const u = random();
+      const radius = rIsco + (rMax - rIsco) * Math.pow(u, 1.35);
+      const angle = random() * Math.PI * 2.0;
 
       // Gaussian-distributed scale height
-      const zBoxMuller = Math.sqrt(-2.0 * Math.log(Math.max(1e-5, random()))) * Math.cos(2.0 * Math.PI * random())
-      const height = zBoxMuller * 0.45
+      const zBoxMuller =
+        Math.sqrt(-2.0 * Math.log(Math.max(1e-5, random()))) *
+        Math.cos(2.0 * Math.PI * random());
+      const height = zBoxMuller * 0.45;
 
-      positions[i * 3 + 0] = radius * Math.cos(angle)
-      positions[i * 3 + 1] = height
-      positions[i * 3 + 2] = radius * Math.sin(angle)
+      positions[i * 3 + 0] = radius * Math.cos(angle);
+      positions[i * 3 + 1] = height;
+      positions[i * 3 + 2] = radius * Math.sin(angle);
 
-      initialRadii[i] = radius
-      initialAngles[i] = angle
-      heightOffsets[i] = height
-      driftSeeds[i] = random()
-      sizes[i] = 0.85 + random() * 0.85
-      turbulences[i] = (random() - 0.5) * 2.0
+      initialRadii[i] = radius;
+      initialAngles[i] = angle;
+      heightOffsets[i] = height;
+      driftSeeds[i] = random();
+      sizes[i] = 0.85 + random() * 0.85;
+      turbulences[i] = (random() - 0.5) * 2.0;
     }
 
-    const geo = new THREE.BufferGeometry()
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    geo.setAttribute('aInitialRadius', new THREE.BufferAttribute(initialRadii, 1))
-    geo.setAttribute('aInitialAngle', new THREE.BufferAttribute(initialAngles, 1))
-    geo.setAttribute('aHeightOffset', new THREE.BufferAttribute(heightOffsets, 1))
-    geo.setAttribute('aDriftSeed', new THREE.BufferAttribute(driftSeeds, 1))
-    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
-    geo.setAttribute('aTurbulence', new THREE.BufferAttribute(turbulences, 1))
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute(
+      "aInitialRadius",
+      new THREE.BufferAttribute(initialRadii, 1),
+    );
+    geo.setAttribute(
+      "aInitialAngle",
+      new THREE.BufferAttribute(initialAngles, 1),
+    );
+    geo.setAttribute(
+      "aHeightOffset",
+      new THREE.BufferAttribute(heightOffsets, 1),
+    );
+    geo.setAttribute("aDriftSeed", new THREE.BufferAttribute(driftSeeds, 1));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute("aTurbulence", new THREE.BufferAttribute(turbulences, 1));
 
-    return [geo, particleCount]
-  }, [particleCount, mass])
+    return [geo, particleCount];
+  }, [particleCount, mass]);
 
-  const uniforms = useMemo(() => ({
-    uTime: { value: 0 },
-    uMass: { value: mass },
-    uDriftSpeed: { value: driftSpeed },
-    uDiskTilt: { value: diskTilt },
-    uDopplerStrength: { value: dopplerStrength },
-    uSizeScale: { value: sizeScale }
-  }), [mass, driftSpeed, diskTilt, dopplerStrength, sizeScale])
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uMass: { value: mass },
+      uDriftSpeed: { value: driftSpeed },
+      uDiskTilt: { value: diskTilt },
+      uDopplerStrength: { value: dopplerStrength },
+      uSizeScale: { value: sizeScale },
+    }),
+    [mass, driftSpeed, diskTilt, dopplerStrength, sizeScale],
+  );
 
   useFrame((_, delta) => {
     if (pointsRef.current) {
-      uniforms.uTime.value += delta
-      uniforms.uMass.value = mass
-      uniforms.uDriftSpeed.value = driftSpeed
-      uniforms.uDiskTilt.value = diskTilt
-      uniforms.uDopplerStrength.value = dopplerStrength
-      uniforms.uSizeScale.value = sizeScale
+      uniforms.uTime.value += delta;
+      uniforms.uMass.value = mass;
+      uniforms.uDriftSpeed.value = driftSpeed;
+      uniforms.uDiskTilt.value = diskTilt;
+      uniforms.uDopplerStrength.value = dopplerStrength;
+      uniforms.uSizeScale.value = sizeScale;
     }
-  })
+  });
 
   return (
     <points ref={pointsRef} geometry={geometry}>
@@ -249,5 +263,5 @@ export function AccretionDiskParticles({
         blending={THREE.AdditiveBlending}
       />
     </points>
-  )
+  );
 }
