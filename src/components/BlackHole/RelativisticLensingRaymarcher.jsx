@@ -1,7 +1,7 @@
-import React, { useMemo, useRef } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
-import * as THREE from 'three'
-import { accretionDiskGLSL } from './accretionDiskShader'
+import React, { useMemo, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import { accretionDiskGLSL } from "./accretionDiskShader";
 
 const raymarchVertexShader = `
   uniform mat4 uProjectionMatrixInverse;
@@ -23,7 +23,7 @@ const raymarchVertexShader = `
 
     gl_Position = vec4(position.xy, 0.9999, 1.0);
   }
-`
+`;
 
 const raymarchFragmentShader = `
   precision highp float;
@@ -204,7 +204,7 @@ const raymarchFragmentShader = `
 
     gl_FragColor = vec4(mapped, finalAlpha);
   }
-`
+`;
 
 export function RelativisticLensingRaymarcher({
   mass = 1.0,
@@ -216,59 +216,75 @@ export function RelativisticLensingRaymarcher({
   temperatureScale = 1.15,
   diskTilt = 0.12, // ~83° nearly edge-on default inclination
   galaxyBrightness = 1.0,
-  qualityPreset = 'high',
-  isPaused = false
+  qualityPreset = "high",
+  isPaused = false,
 }) {
-  const meshRef = useRef()
-  const timeRef = useRef(0)
-  const { camera } = useThree()
+  const meshRef = useRef();
+  const timeRef = useRef(0);
+  const { camera } = useThree();
 
   // Step budget based on quality preset
   const maxSteps = useMemo(() => {
-    if (qualityPreset === 'ultra') return 72
-    if (qualityPreset === 'high') return 56
-    if (qualityPreset === 'medium') return 38
-    return 26 // low
-  }, [qualityPreset])
+    if (qualityPreset === "ultra") return 72;
+    if (qualityPreset === "high") return 56;
+    if (qualityPreset === "medium") return 38;
+    return 26; // low
+  }, [qualityPreset]);
 
-  const uniforms = useMemo(() => ({
-    uProjectionMatrixInverse: { value: new THREE.Matrix4() },
-    uCameraWorldMatrix: { value: new THREE.Matrix4() },
-    uTime: { value: 0 },
-    uMass: { value: mass },
-    uRIn: { value: rIn },
-    uROut: { value: rOut },
-    uDriftSpeed: { value: driftSpeed },
-    uRotationSpeed: { value: rotationSpeed },
-    uDopplerGain: { value: dopplerGain },
-    uTemperatureScale: { value: temperatureScale },
-    uDiskTilt: { value: diskTilt },
-    uGalaxyBrightness: { value: galaxyBrightness },
-    uMaxSteps: { value: maxSteps },
-    uCameraPos: { value: new THREE.Vector3() }
-  }), [mass, rIn, rOut, driftSpeed, rotationSpeed, dopplerGain, temperatureScale, diskTilt, galaxyBrightness, maxSteps])
+  const uniforms = useMemo(
+    () => ({
+      uProjectionMatrixInverse: { value: new THREE.Matrix4() },
+      uCameraWorldMatrix: { value: new THREE.Matrix4() },
+      uTime: { value: 0 },
+      uMass: { value: mass },
+      uRIn: { value: rIn },
+      uROut: { value: rOut },
+      uDriftSpeed: { value: driftSpeed },
+      uRotationSpeed: { value: rotationSpeed },
+      uDopplerGain: { value: dopplerGain },
+      uTemperatureScale: { value: temperatureScale },
+      uDiskTilt: { value: diskTilt },
+      uGalaxyBrightness: { value: galaxyBrightness },
+      uMaxSteps: { value: maxSteps },
+      uCameraPos: { value: new THREE.Vector3() },
+    }),
+    [
+      mass,
+      rIn,
+      rOut,
+      driftSpeed,
+      rotationSpeed,
+      dopplerGain,
+      temperatureScale,
+      diskTilt,
+      galaxyBrightness,
+      maxSteps,
+    ],
+  );
 
   useFrame((_, delta) => {
     if (meshRef.current) {
       if (!isPaused) {
-        timeRef.current += delta
+        timeRef.current += delta;
       }
-      uniforms.uProjectionMatrixInverse.value.copy(camera.projectionMatrixInverse)
-      uniforms.uCameraWorldMatrix.value.copy(camera.matrixWorld)
-      uniforms.uTime.value = timeRef.current
-      uniforms.uMass.value = mass
-      uniforms.uRIn.value = rIn
-      uniforms.uROut.value = rOut
-      uniforms.uDriftSpeed.value = driftSpeed
-      uniforms.uRotationSpeed.value = rotationSpeed
-      uniforms.uDopplerGain.value = dopplerGain
-      uniforms.uTemperatureScale.value = temperatureScale
-      uniforms.uDiskTilt.value = diskTilt
-      uniforms.uGalaxyBrightness.value = galaxyBrightness
-      uniforms.uMaxSteps.value = maxSteps
-      uniforms.uCameraPos.value.copy(camera.position)
+      uniforms.uProjectionMatrixInverse.value.copy(
+        camera.projectionMatrixInverse,
+      );
+      uniforms.uCameraWorldMatrix.value.copy(camera.matrixWorld);
+      uniforms.uTime.value = timeRef.current;
+      uniforms.uMass.value = mass;
+      uniforms.uRIn.value = rIn;
+      uniforms.uROut.value = rOut;
+      uniforms.uDriftSpeed.value = driftSpeed;
+      uniforms.uRotationSpeed.value = rotationSpeed;
+      uniforms.uDopplerGain.value = dopplerGain;
+      uniforms.uTemperatureScale.value = temperatureScale;
+      uniforms.uDiskTilt.value = diskTilt;
+      uniforms.uGalaxyBrightness.value = galaxyBrightness;
+      uniforms.uMaxSteps.value = maxSteps;
+      uniforms.uCameraPos.value.copy(camera.position);
     }
-  })
+  });
 
   return (
     <mesh ref={meshRef} frustumCulled={false}>
@@ -283,5 +299,5 @@ export function RelativisticLensingRaymarcher({
         depthTest={false}
       />
     </mesh>
-  )
+  );
 }
