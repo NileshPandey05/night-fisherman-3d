@@ -4,6 +4,9 @@ import * as THREE from 'three'
 import { accretionDiskGLSL } from './accretionDiskShader'
 
 const raymarchVertexShader = `
+  uniform mat4 uProjectionMatrixInverse;
+  uniform mat4 uCameraWorldMatrix;
+
   varying vec2 vUv;
   varying vec3 vRayDir;
   varying vec3 vCameraPos;
@@ -14,8 +17,8 @@ const raymarchVertexShader = `
 
     // Unproject quad clip-space coords [-1, 1] to world-space ray direction
     vec4 clipPos = vec4(position.xy, 1.0, 1.0);
-    vec4 viewPos = inverse(projectionMatrix) * clipPos;
-    vec3 worldRay = (inverse(viewMatrix) * vec4(viewPos.xyz, 0.0)).xyz;
+    vec4 viewPos = uProjectionMatrixInverse * clipPos;
+    vec3 worldRay = (uCameraWorldMatrix * vec4(viewPos.xyz, 0.0)).xyz;
     vRayDir = normalize(worldRay);
 
     gl_Position = vec4(position.xy, 0.9999, 1.0);
@@ -82,6 +85,23 @@ const raymarchFragmentShader = `
     float accumOpacity = 0.0;
     bool hitHorizon = false;
 
+    // Bounding sphere acceleration: advance ray to outer bounding sphere if outside
+    float rCam = length(rayPos);
+    if (rCam > rMaxBound) {
+      float bSph = dot(rayPos, rayDir);
+      float cSph = rCam * rCam - rMaxBound * rMaxBound;
+      float dSph = bSph * bSph - cSph;
+      if (dSph < 0.0 || bSph > 0.0) {
+        // Misses bounding sphere entirely
+        gl_FragColor = vec4(0.0);
+        return;
+      }
+      float tEnter = -bSph - sqrt(dSph);
+      if (tEnter > 0.0) {
+        rayPos = rayPos + rayDir * tEnter;
+      }
+    }
+
     vec3 pCurr = rayPos;
     vec3 vCurr = rayDir;
 
@@ -126,11 +146,12 @@ const raymarchFragmentShader = `
         float tFrac = -pDiskPrev.y / (pDiskNext.y - pDiskPrev.y);
         vec3 pCross = mix(pDiskPrev, pDiskNext, clamp(tFrac, 0.0, 1.0));
         vec3 vCross = mix(vCurr, vNext, tFrac);
+        vec3 vDiskCross = invTiltRot * vCross;
 
         // Sample continuous physical disk emission field
         vec4 emission = sampleAccretionDisk(
           pCross,
-          vCross,
+          vDiskCross,
           rs,
           rIn,
           rOut,
@@ -205,6 +226,8 @@ export function RelativisticLensingRaymarcher({
   }, [qualityPreset])
 
   const uniforms = useMemo(() => ({
+    uProjectionMatrixInverse: { value: new THREE.Matrix4() },
+    uCameraWorldMatrix: { value: new THREE.Matrix4() },
     uTime: { value: 0 },
     uMass: { value: mass },
     uRIn: { value: rIn },
@@ -223,6 +246,8 @@ export function RelativisticLensingRaymarcher({
       if (!isPaused) {
         timeRef.current += delta
       }
+      uniforms.uProjectionMatrixInverse.value.copy(camera.projectionMatrixInverse)
+      uniforms.uCameraWorldMatrix.value.copy(camera.matrixWorld)
       uniforms.uTime.value = timeRef.current
       uniforms.uMass.value = mass
       uniforms.uRIn.value = rIn

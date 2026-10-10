@@ -114,10 +114,10 @@ export const accretionDiskGLSL = `
     float effectiveTemp = clamp(baseTemp * modulation, 0.0, 1.0);
 
     // 4. Relativistic Doppler Beaming
-    // Orbital velocity unit vector: v = (-sin(phi), 0, cos(phi))
-    vec3 vOrbital = vec3(-sin(phi), 0.0, cos(phi));
-    // Line-of-sight velocity projection against incoming light ray
-    float cosAlpha = dot(vOrbital, normalize(rayDir));
+    // Orbital velocity unit vector (left side x < 0 approaches the observer at z > 0)
+    vec3 vOrbital = vec3(sin(phi), 0.0, -cos(phi));
+    // Photon emission direction towards observer is -normalize(rayDir)
+    float cosAlpha = dot(vOrbital, -normalize(rayDir));
 
     // Relativistic velocity beta = v/c ≈ sqrt(Rs / (2r))
     float beta = clamp(sqrt(rs / (2.0 * max(r, rs))), 0.0, 0.68);
